@@ -1,18 +1,25 @@
 <?php
 require_once '../includes/hidden.php';
 
+// sprawdz czy uzytkownik jest juz zalogowany
 if (is_logged_in()) {
     redirect(url('index.php'));
 }
 
+// obsluz logowanie
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    $stmt = $pdo->prepare("SELECT user_id, password FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
+    // sprawdz dane logowania
+    $query = "SELECT user_id, password FROM users WHERE username = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('s', $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
 
+    // jesli dane sa poprawne zaloguj uzytkownika
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['user_id'];
         redirect(url('index.php'));
@@ -61,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Footer -->
     <footer class="footer">
-        <p>Kino Orange Wszelkie prawa zastrzerzone.</p>
+        <p>Kino Orange &copy; Wszelkie prawa zastrzeżone.</p>
     </footer>
 </body>
 

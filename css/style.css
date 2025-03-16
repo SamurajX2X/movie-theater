@@ -1,4 +1,3 @@
-/* Global Styles */
 body {
     background-color: #121212;
     color: #f0f0f0;
@@ -9,7 +8,6 @@ body {
     flex-direction: column;
 }
 
-/* Navigation */
 .navbar {
     background: #1e1e1e;
     padding: 1rem 2rem;
@@ -50,7 +48,6 @@ body {
     color: #ff7b00;
 }
 
-/* Navigation Layout */
 .nav-left,
 .nav-right {
     display: flex;
@@ -69,12 +66,10 @@ body {
     color: #ff7b00;
 }
 
-/* Container and Cards */
 .container {
     flex: 1;
     padding: 3rem;
     max-width: 1200px;
-    /* Increased from 1000px */
     margin: 2rem auto;
     background: #1e1e1e;
     border-radius: 12px;
@@ -129,7 +124,6 @@ input:focus {
     box-shadow: 0 0 8px rgba(255, 123, 0, 0.4);
 }
 
-/* Login/Register Specific */
 .auth-container {
     max-width: 600px;
     margin: 4rem auto;
@@ -192,7 +186,6 @@ button:hover,
     box-shadow: 0 6px 16px rgba(255, 123, 0, 0.4);
 }
 
-/* Links */
 a {
     color: #ff7b00;
     text-decoration: none;
@@ -213,7 +206,6 @@ a:hover {
     text-align: center;
 }
 
-/* Success Messages */
 .success {
     color: #00ff00;
     background: rgba(0, 255, 0, 0.1);
@@ -223,7 +215,6 @@ a:hover {
     text-align: center;
 }
 
-/* Headers */
 h1,
 h2,
 h3 {
@@ -231,7 +222,6 @@ h3 {
     margin-bottom: 1.5rem;
 }
 
-/* Footer */
 .footer {
     background: #1e1e1e;
     padding: 1rem;
@@ -240,7 +230,6 @@ h3 {
     color: #aaaaaa;
 }
 
-/* SEAT GRID */
 .seat-grid {
     display: flex;
     flex-direction: column;
@@ -351,7 +340,6 @@ h3 {
     cursor: not-allowed;
 }
 
-/* Movies Grid */
 .movies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

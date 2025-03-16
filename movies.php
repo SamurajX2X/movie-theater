@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/hidden.php';
 
-// Get all movies with their upcoming screenings
+// Pobieranie filmow i seansow
 $query = "
     SELECT 
         m.movie_id,
@@ -15,10 +15,10 @@ $query = "
     ORDER BY m.title ASC, s.screening_date ASC
 ";
 
-$stmt = $pdo->query($query);
-$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$result = $mysqli->query($query);
+$results = $result->fetch_all(MYSQLI_ASSOC);
 
-// Group screenings by movie
+// Grupowanie seansow po filmach
 $movies = [];
 foreach ($results as $row) {
     if (!isset($movies[$row['movie_id']])) {
@@ -71,20 +71,18 @@ foreach ($results as $row) {
                     <div class="movie-card">
                         <h2><?= htmlspecialchars($movie['title']) ?></h2>
                         <p class="movie-description"><?= htmlspecialchars($movie['description']) ?></p>
-                        
+
                         <div class="screening-times">
                             <h3>Dostępne seanse:</h3>
                             <?php if (!empty($movie['screenings'])): ?>
                                 <div class="screening-buttons">
                                     <?php foreach ($movie['screenings'] as $screening): ?>
                                         <?php if (is_logged_in()): ?>
-                                            <a href="<?= url('seats.php?screening_id=' . $screening['id']) ?>" 
-                                               class="screening-btn">
+                                            <a href="<?= url('seats.php?screening_id=' . $screening['id']) ?>" class="screening-btn">
                                                 <?= date('d.m.Y H:i', strtotime($screening['date'])) ?>
                                             </a>
                                         <?php else: ?>
-                                            <a href="<?= url('accounts/login.php') ?>" 
-                                               class="screening-btn">
+                                            <a href="<?= url('accounts/login.php') ?>" class="screening-btn">
                                                 <?= date('d.m.Y H:i', strtotime($screening['date'])) ?>
                                             </a>
                                         <?php endif; ?>

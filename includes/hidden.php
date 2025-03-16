@@ -1,39 +1,35 @@
 <?php
 session_start();
 
-// Dane połączenia z bazą danych
+// Dane do połączenia z bazą
 $host = 'localhost';
-$db = 'cinema';
 $user = 'root';
 $pass = '';
+$db = 'cinema';
 
-try {
-    // Utworzenie połączenia PDO
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$db;charset=utf8mb4",
-        $user,
-        $pass
-    );
-    // Włączenie zgłaszania błędów
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Błąd połączenia z bazą: " . $e->getMessage());
+// Tworzenie połączenia mysqli
+$mysqli = new mysqli($host, $user, $pass, $db);
+
+// Sprawdzenie połączenia
+if ($mysqli->connect_error) {
+    die("Błąd połączenia: " . $mysqli->connect_error);
 }
 
-// Sprawdza czy użytkownik jest zalogowany
+// Ustawienie kodowania
+$mysqli->set_charset("utf8mb4");
+
+// Funkcje pomocnicze
 function is_logged_in()
 {
     return isset($_SESSION['user_id']);
 }
 
-// Przekierowanie do innej strony
 function redirect($url)
 {
     header("Location: $url");
     exit();
 }
 
-// Helper dla URL-i
 function url($path)
 {
     return "/kino/" . ltrim($path, "/");
@@ -42,7 +38,7 @@ function url($path)
 // Pobierz rezerwacje użytkownika
 function get_user_reservations($user_id)
 {
-    global $pdo;
+    global $mysqli;
     $query = "SELECT 
         r.reservation_id,
         m.title,
@@ -56,8 +52,10 @@ function get_user_reservations($user_id)
     WHERE r.user_id = ?
     GROUP BY r.reservation_id";
 
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([$user_id]);
-    return $stmt->fetchAll();
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
 }
 ?>

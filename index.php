@@ -5,7 +5,7 @@ if (!is_logged_in()) {
     redirect(url('accounts/login.php'));
 }
 
-// Simple query for future screenings
+// Get future screenings using mysqli
 $query = "
     SELECT 
         s.screening_id,
@@ -17,14 +17,8 @@ $query = "
     ORDER BY s.screening_date ASC
 ";
 
-$stmt = $pdo->query($query);
-$screenings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-//  debug
-// echo "<pre>";
-// echo "czas " . date('Y-m-d H:i:s') . "\n";
-// echo "seanse" . count($screenings) . "\n";
-// echo "</pre>";
+$result = $mysqli->query($query);
+$screenings = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>

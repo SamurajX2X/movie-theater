@@ -1,34 +1,52 @@
 <?php
 require_once 'includes/hidden.php';
 
-if (!is_logged_in())
-    redirect('accounts/login.php');
+// sprawdz czy uzytkownik jest zalogowany
+if (!is_logged_in()) {
+    redirect(url('accounts/login.php'));
+}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $pdo->beginTransaction();
+// sprawdz czy sa potrzebne dane
+if (empty($_POST['screening_id']) || empty($_POST['selected_seats'])) {
+    redirect(url('index.php'));
+}
 
-        $stmt = $pdo->prepare("
-            INSERT INTO reservations (user_id, screening_id)
-            VALUES (?, ?)
-        ");
-        $stmt->execute([$_SESSION['user_id'], $_POST['screening_id']]);
-        $reservation_id = $pdo->lastInsertId();
+$screening_id = (int) $_POST['screening_id'];
+$user_id = (int) $_SESSION['user_id'];
+$selected_seats = explode(',', $_POST['selected_seats']);
 
-        $seats = explode(',', $_POST['selected_seats']);
-        foreach ($seats as $seat_id) {
-            $stmt = $pdo->prepare("
-                INSERT INTO reserved_seats (reservation_id, seat_id)
-                VALUES (?, ?)
-            ");
-            $stmt->execute([$reservation_id, $seat_id]);
-        }
+// rozpocznij transakcje
+$mysqli->begin_transaction();
 
-        $pdo->commit();
-        $_SESSION['success'] = "Rezerwacja zakończona pomyślnie!";
-        redirect('accounts/profile.php');
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        die("Błąd rezerwacji: " . $e->getMessage());
+// dodaj rezerwacje
+$query = "INSERT INTO reservations (user_id, screening_id, reservation_time) 
+          VALUES ($user_id, $screening_id, NOW())";
+
+if (!$mysqli->query($query)) {
+    $mysqli->rollback();
+    redirect(url('index.php'));
+}
+
+$reservation_id = $mysqli->insert_id;
+
+// dodaj miejsca do rezerwacji
+$success = true;
+foreach ($selected_seats as $seat_id) {
+    $seat_id = (int) $seat_id;
+    $query = "INSERT INTO reserved_seats (reservation_id, seat_id) 
+              VALUES ($reservation_id, $seat_id)";
+
+    if (!$mysqli->query($query)) {
+        $success = false;
+        break;
     }
+}
+
+// zatwierdz lub cofnij zmiany
+if ($success) {
+    $mysqli->commit();
+    redirect(url('accounts/profile.php'));
+} else {
+    $mysqli->rollback();
+    redirect(url('index.php'));
 }

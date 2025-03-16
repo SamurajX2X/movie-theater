@@ -1,27 +1,33 @@
 <?php
-require_once 'includes/hidden.php';  // Remove session_start() since it's in hidden.php
+require_once 'includes/hidden.php';
 
+// Sprawdzenie zalogowania
 if (!is_logged_in()) {
     redirect(url('accounts/login.php'));
 }
 
-// Check if screening_id is provided
+// Sprawdzenie ID seansu
 if (!isset($_GET['screening_id'])) {
     redirect(url('index.php'));
 }
 
 $screening_id = $_GET['screening_id'];
 
-// Get taken seats for this screening
-$stmt = $pdo->prepare("
+// Pobieranie zajetych miejsc
+$query = "
     SELECT s.seat_id 
     FROM reserved_seats rs
     JOIN seats s ON rs.seat_id = s.seat_id
     JOIN reservations r ON rs.reservation_id = r.reservation_id
     WHERE r.screening_id = ?
-");
-$stmt->execute([$screening_id]);
-$taken_seats = $stmt->fetchAll(PDO::FETCH_COLUMN);
+";
+
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param('i', $screening_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$taken_seats = $result->fetch_all(MYSQLI_NUM);
+$taken_seats = array_column($taken_seats, 0);
 
 ?>
 
